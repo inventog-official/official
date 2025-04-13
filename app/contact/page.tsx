@@ -7,39 +7,61 @@ import { Textarea } from "@/components/ui/textarea"
 import { Building2, Mail, MapPin, Phone } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+// Schema Definition
+const contactSchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  company: z.string().min(2, "Company name is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+})
+
+type ContactFormData = z.infer<typeof contactSchema>
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+  })
+
+  const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true)
-
-    const form = e.target as HTMLFormElement
-    const formData = new FormData(form)
-    const data = Object.fromEntries(formData.entries())
-
+  
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-
-      if (response.ok) {
-        toast.success("Message sent successfully!")
-        form.reset()
+  
+      const result = await res.json()
+  
+      if (!res.ok) {
+        toast.error("Submission failed. Please try again.")
+        console.error(result.error)
       } else {
-        throw new Error('Failed to send message')
+        toast.success("Message sent successfully!")
+        reset()
       }
-    } catch (error) {
-      toast.error("Error sending message, Please try again later.")
+    } catch (err) {
+      toast.error("Something went wrong.")
+      console.error(err)
     } finally {
       setIsSubmitting(false)
     }
+
   }
+  
 
   return (
     <>
@@ -123,7 +145,7 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <form onSubmit={handleSubmit} className="space-y-6">
+             <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="firstName" className="text-sm font-medium">
@@ -131,10 +153,12 @@ export default function Contact() {
                     </label>
                     <Input
                       id="firstName"
-                      name="firstName"
+                      {...register("firstName")}
                       placeholder="John"
-                      required
                     />
+                    {errors.firstName && (
+                      <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="lastName" className="text-sm font-medium">
@@ -142,24 +166,28 @@ export default function Contact() {
                     </label>
                     <Input
                       id="lastName"
-                      name="lastName"
+                      {...register("lastName")}
                       placeholder="Doe"
-                      required
                     />
+                    {errors.lastName && (
+                      <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                    )}
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium">
                     Email
                   </label>
                   <Input
                     id="email"
-                    name="email"
                     type="email"
+                    {...register("email")}
                     placeholder="john.doe@example.com"
-                    required
                   />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -168,10 +196,12 @@ export default function Contact() {
                   </label>
                   <Input
                     id="company"
-                    name="company"
+                    {...register("company")}
                     placeholder="Your Company Name"
-                    required
                   />
+                  {errors.company && (
+                    <p className="text-sm text-red-500">{errors.company.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -180,11 +210,13 @@ export default function Contact() {
                   </label>
                   <Textarea
                     id="message"
-                    name="message"
+                    {...register("message")}
                     placeholder="Tell us about your project..."
                     className="min-h-[150px]"
-                    required
                   />
+                  {errors.message && (
+                    <p className="text-sm text-red-500">{errors.message.message}</p>
+                  )}
                 </div>
 
                 <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
