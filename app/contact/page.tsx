@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Building2, Mail, MapPin, Phone } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export default function Contact() {
-  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,20 +29,13 @@ export default function Contact() {
       })
 
       if (response.ok) {
-        toast({
-          title: "Message sent successfully!",
-          description: "We'll get back to you as soon as possible.",
-        })
+        toast.success("Message sent successfully!")
         form.reset()
       } else {
         throw new Error('Failed to send message')
       }
     } catch (error) {
-      toast({
-        title: "Error sending message",
-        description: "Please try again later.",
-        variant: "destructive",
-      })
+      toast.error("Error sending message, Please try again later.")
     } finally {
       setIsSubmitting(false)
     }
