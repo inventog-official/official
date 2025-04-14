@@ -138,7 +138,7 @@ export default function Contact() {
                     <Phone className="h-6 w-6 text-primary mr-4 mt-1" />
                     <div>
                       <h3 className="font-semibold">Phone</h3>
-                      <p className="text-muted-foreground">+91 88255 31744</p>
+                      <p className="text-muted-foreground">+91 78459 31744</p>
                     </div>
                   </div>
                   <div className="flex items-start">
@@ -307,9 +307,10 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-lg overflow-hidden shadow-lg h-[400px]">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.2722907025723!2d-122.08374688447931!3d37.42199997982367!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fba02425dad8f%3A0x6c296c66619367e0!2sGoogleplex!5e0!3m2!1sen!2sus!4v1624308999981!5m2!1sen!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7830.380988771535!2d76.98375469469923!3d11.099176034465911!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba8f79f3fa6a37b%3A0x840ed0974aefe690!2sCHIL%20SEZ%20IT%20Park%2C%20Saravanampatti%2C%20Coimbatore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1744620462483!5m2!1sen!2sin"
               className="w-full h-full border-0"
               title="Google Map"
+              loading="lazy"
             ></iframe>
           </div>
         </div>

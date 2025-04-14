@@ -119,8 +119,8 @@ export default function ThankYouEmail({
               </Column>
               <Column style={contactColumn}>
                 <Text style={contactHeading}>📞 Contact Us</Text>
-                <Text style={contactDetail}>support@inventog.com</Text>
-                <Text style={contactDetail}>+91 98765 43210</Text>
+                <Text style={contactDetail}>contact@inventog.com</Text>
+                <Text style={contactDetail}>+91 78459 31744</Text>
               </Column>
             </Row>
           </Section>
