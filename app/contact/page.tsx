@@ -11,41 +11,25 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema } from "@/lib/validation/Email-type";
 import PhoneInput from "react-phone-number-input"; // Importing PhoneInput
-//@ts-ignore
-import { getCountries, CountryCode } from "react-phone-number-input";
 
 import "react-phone-number-input/style.css"; // Importing phone input styles
+import { CountryCode, isValidPhoneNumber } from "libphonenumber-js/min";
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [phone, setPhone] = useState<string | undefined>("");
   const [country, setCountry] = useState<string | undefined>("");
 
-  const detectedCountry = "IN"; // from API
-  const validCountries = getCountries();
-
-  const isValidCountry = validCountries.includes(
-    detectedCountry as CountryCode
-  );
-
   useEffect(() => {
-    // Automatically detect the country based on geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
-        const response = await fetch(
-          `https://ip-api.com/json/${latitude},${longitude}`
-        );
-        const data = await response.json();
-        if (data.countryCode) {
-          setCountry(data.countryCode);
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.country_code) {
+          setCountry(data.country_code);
         }
-      });
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
+      })
+      .catch((err) => console.error("ipapi.co error:", err));
   }, []);
 
   const {
@@ -54,10 +38,15 @@ export default function Contact() {
     reset,
     control,
     formState: { errors },
-    watch,
+    getValues,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
+    defaultValues: {
+      phone: "", // initialize phone to empty string
+    },
   });
+
+  console.log(getValues());
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
@@ -68,7 +57,7 @@ export default function Contact() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...data }), // Send form data with phone number
+        body: JSON.stringify(data),
       });
 
       const result = await res.json();
@@ -137,11 +126,11 @@ export default function Contact() {
                     <div>
                       <h3 className="font-semibold">Address</h3>
                       <p className="text-muted-foreground">
-                        123 Innovation Drive
+                        Saravanampatti, Coimbatore
                         <br />
-                        Silicon Valley, CA 94025
+                        Tamil Nadu, 641035
                         <br />
-                        United States
+                        India
                       </p>
                     </div>
                   </div>
@@ -149,7 +138,7 @@ export default function Contact() {
                     <Phone className="h-6 w-6 text-primary mr-4 mt-1" />
                     <div>
                       <h3 className="font-semibold">Phone</h3>
-                      <p className="text-muted-foreground">+1 (888) 123-4567</p>
+                      <p className="text-muted-foreground">+91 88255 31744</p>
                     </div>
                   </div>
                   <div className="flex items-start">
@@ -157,7 +146,7 @@ export default function Contact() {
                     <div>
                       <h3 className="font-semibold">Email</h3>
                       <p className="text-muted-foreground">
-                        contact@inventog.com
+                        inventogofficial@gmail.com, contact@inventog.com
                       </p>
                     </div>
                   </div>
@@ -167,8 +156,7 @@ export default function Contact() {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Office Hours</h2>
                 <div className="space-y-2 text-muted-foreground">
-                  <p>Monday - Friday: 9:00 AM - 6:00 PM (PST)</p>
-                  <p>Saturday - Sunday: Closed</p>
+                  <p>Monday - Friday: 9:00 AM - 6:00 PM (GMT)</p>
                 </div>
               </div>
             </motion.div>
@@ -251,7 +239,6 @@ export default function Contact() {
                 </div>
 
                 {/* Phone Input Field */}
-
                 <div className="space-y-2">
                   <label htmlFor="phone" className="text-sm font-medium">
                     Phone
@@ -259,16 +246,18 @@ export default function Contact() {
                   <Controller
                     name="phone"
                     control={control}
+                    rules={{
+                      required: "Phone number is required",
+                      validate: (value) =>
+                        isValidPhoneNumber(value || "") ||
+                        "Valid phone number is required",
+                    }}
                     render={({ field }) => (
                       <PhoneInput
                         {...field}
+                        disabled={isSubmitting}
                         international
-                        onChange={setPhone}
-                        defaultCountry={
-                          isValidCountry
-                            ? (detectedCountry as CountryCode)
-                            : undefined
-                        }
+                        defaultCountry={country as CountryCode | undefined}
                         placeholder="Enter phone number"
                         className="rounded-md border px-3 py-2 w-full"
                       />

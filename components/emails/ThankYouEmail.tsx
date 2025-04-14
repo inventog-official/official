@@ -16,12 +16,14 @@ export default function ThankYouEmail({
   firstName,
   lastName,
   email,
+  phone,
   company,
   message,
 }: {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   company: string;
   message: string;
 }) {
@@ -79,6 +81,9 @@ export default function ThankYouEmail({
               <strong>Email:</strong> {email}
             </Text>
             <Text style={info}>
+              <strong>Phone:</strong> {phone}
+            </Text>
+            <Text style={info}>
               <strong>Message:</strong>
               <br />
               {message}
@@ -90,7 +95,7 @@ export default function ThankYouEmail({
             <Text style={subheading}>Why Choose InventOG?</Text>
             <ul style={list}>
               <li>
-                ✅ 5+ Years of Experience in Web, App, and E-commerce
+                ✅ 3+ Years of Experience in Web, App, and E-commerce
                 Development
               </li>
               <li>⚡ Fast Response Times & Transparent Communication</li>
@@ -109,7 +114,7 @@ export default function ThankYouEmail({
               <Column style={contactColumn}>
                 <Text style={contactHeading}>📍 Office Address</Text>
                 <Text style={contactDetail}>
-                  123 Tech Street, Coimbatore, TN - 641001
+                  Saravanampatti, Coimbatore, Tamil Nadu, Coimbatore - 641035
                 </Text>
               </Column>
               <Column style={contactColumn}>

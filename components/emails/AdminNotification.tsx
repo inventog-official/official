@@ -4,6 +4,7 @@ type Props = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   company: string;
   message: string;
 };
@@ -12,6 +13,7 @@ export default function AdminNotification({
   firstName,
   lastName,
   email,
+  phone,
   company,
   message,
 }: Props) {
@@ -37,6 +39,9 @@ export default function AdminNotification({
           </Text>
           <Text>
             <strong>Email:</strong> {email}
+          </Text>
+          <Text>
+            <strong>Phone:</strong> {phone}
           </Text>
           <Text>
             <strong>Company:</strong> {company}
