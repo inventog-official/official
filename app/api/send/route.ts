@@ -1,23 +1,66 @@
-import { EmailTemplate } from '@/components/email-template';
-import { Resend } from 'resend';
+// app/api/send/route.ts
+import { NextResponse } from "next/server";
+import { Resend } from "resend";
+import ThankYouEmail from "@/components/emails/ThankYouEmail";
+import AdminNotification from "@/components/emails/AdminNotification";
+import { contactSchema } from "@/lib/validation/Email-type";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const audienceId = process.env.RESEND_AUDIENCE_ID ?? "";
 
-export async function POST() {
+export async function POST(req: Request) {
+  const body = await req.json();
+
+  const result = contactSchema.safeParse(body);
+  if (!result.success) {
+    return NextResponse.json({ error: result.error.format() }, { status: 400 });
+  }
+
+  const { firstName, lastName, email, company, message } = result.data;
+
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>',
-      to: ['delivered@resend.dev'],
-      subject: 'Hello world',
-      react: EmailTemplate({ firstName: 'John' }),
+    // Send Thank You Email to User
+    await resend.emails.send({
+      from: "InventOG <contact@inventog.com>",
+      to: email,
+      subject: "Thank You for Contacting InventOG!",
+      react: ThankYouEmail({
+        firstName,
+        lastName,
+        company: company ?? "",
+        email,
+        message: message ?? "",
+      }),
     });
 
-    if (error) {
-      return Response.json({ error }, { status: 500 });
-    }
+    // Send Admin Notification
+    await resend.emails.send({
+      from: "New Contact <contact@inventog.com>",
+      to: "contact@inventog.com",
+      subject: `New Contact Form Submission from ${firstName} ${lastName}`,
+      react: AdminNotification({
+        firstName,
+        lastName,
+        email,
+        company: company ?? "",
+        message: message ?? "",
+      }),
+    });
 
-    return Response.json(data);
-  } catch (error) {
-    return Response.json({ error }, { status: 500 });
+    await resend.contacts.create({
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      unsubscribed: false,
+      audienceId: audienceId,
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Email sending failed:", err);
+    return NextResponse.json(
+      { error: "Failed to send email" },
+      { status: 500 }
+    );
   }
 }

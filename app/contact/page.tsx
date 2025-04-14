@@ -1,67 +1,92 @@
-"use client"
+"use client";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Building2, Mail, MapPin, Phone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { contactSchema } from "@/lib/validation/Email-type";
+import PhoneInput from "react-phone-number-input"; // Importing PhoneInput
+//@ts-ignore
+import { getCountries, CountryCode } from "react-phone-number-input";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Building2, Mail, MapPin, Phone } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import "react-phone-number-input/style.css"; // Importing phone input styles
 
-// Schema Definition
-const contactSchema = z.object({
-  firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  company: z.string().min(2, "Company name is required"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-})
-
-type ContactFormData = z.infer<typeof contactSchema>
+type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function Contact() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState<string | undefined>("");
+  const [country, setCountry] = useState<string | undefined>("");
+
+  const detectedCountry = "IN"; // from API
+  const validCountries = getCountries();
+
+  const isValidCountry = validCountries.includes(
+    detectedCountry as CountryCode
+  );
+
+  useEffect(() => {
+    // Automatically detect the country based on geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(
+          `https://ip-api.com/json/${latitude},${longitude}`
+        );
+        const data = await response.json();
+        if (data.countryCode) {
+          setCountry(data.countryCode);
+        }
+      });
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
+    watch,
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
-  })
+  });
 
   const onSubmit = async (data: ContactFormData) => {
-    setIsSubmitting(true)
-  
+    setIsSubmitting(true);
+
     try {
       const res = await fetch("/api/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-  
-      const result = await res.json()
-  
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...data }), // Send form data with phone number
+      });
+
+      const result = await res.json();
+
       if (!res.ok) {
-        toast.error("Submission failed. Please try again.")
-        console.error(result.error)
+        toast.error("Submission failed. Please try again.");
+        console.error(result.error || result);
       } else {
-        toast.success("Message sent successfully!")
-        reset()
+        toast.success("Message sent successfully!");
+        reset();
       }
     } catch (err) {
-      toast.error("Something went wrong.")
-      console.error(err)
+      toast.error("Something went wrong.");
+      console.error(err);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-
-  }
-  
+  };
 
   return (
     <>
@@ -73,9 +98,12 @@ export default function Contact() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Get in Touch</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Get in Touch
+            </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Let's discuss how INVENTOG can help transform your business with innovative solutions.
+              Let&apos;s discuss how INVENTOG can help transform your business
+              with innovative solutions.
             </p>
           </motion.div>
         </div>
@@ -99,7 +127,9 @@ export default function Contact() {
                     <Building2 className="h-6 w-6 text-primary mr-4 mt-1" />
                     <div>
                       <h3 className="font-semibold">Headquarters</h3>
-                      <p className="text-muted-foreground">INVENTOG Technologies</p>
+                      <p className="text-muted-foreground">
+                        INVENTOG Technologies
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start">
@@ -107,8 +137,10 @@ export default function Contact() {
                     <div>
                       <h3 className="font-semibold">Address</h3>
                       <p className="text-muted-foreground">
-                        123 Innovation Drive<br />
-                        Silicon Valley, CA 94025<br />
+                        123 Innovation Drive
+                        <br />
+                        Silicon Valley, CA 94025
+                        <br />
                         United States
                       </p>
                     </div>
@@ -124,7 +156,9 @@ export default function Contact() {
                     <Mail className="h-6 w-6 text-primary mr-4 mt-1" />
                     <div>
                       <h3 className="font-semibold">Email</h3>
-                      <p className="text-muted-foreground">contact@inventog.com</p>
+                      <p className="text-muted-foreground">
+                        contact@inventog.com
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -145,7 +179,7 @@ export default function Contact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-             <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="firstName" className="text-sm font-medium">
@@ -155,9 +189,12 @@ export default function Contact() {
                       id="firstName"
                       {...register("firstName")}
                       placeholder="John"
+                      disabled={isSubmitting}
                     />
                     {errors.firstName && (
-                      <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.firstName.message}
+                      </p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -168,9 +205,12 @@ export default function Contact() {
                       id="lastName"
                       {...register("lastName")}
                       placeholder="Doe"
+                      disabled={isSubmitting}
                     />
                     {errors.lastName && (
-                      <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.lastName.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -184,9 +224,12 @@ export default function Contact() {
                     type="email"
                     {...register("email")}
                     placeholder="john.doe@example.com"
+                    disabled={isSubmitting}
                   />
                   {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
 
@@ -198,9 +241,43 @@ export default function Contact() {
                     id="company"
                     {...register("company")}
                     placeholder="Your Company Name"
+                    disabled={isSubmitting}
                   />
                   {errors.company && (
-                    <p className="text-sm text-red-500">{errors.company.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.company.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone Input Field */}
+
+                <div className="space-y-2">
+                  <label htmlFor="phone" className="text-sm font-medium">
+                    Phone
+                  </label>
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <PhoneInput
+                        {...field}
+                        international
+                        onChange={setPhone}
+                        defaultCountry={
+                          isValidCountry
+                            ? (detectedCountry as CountryCode)
+                            : undefined
+                        }
+                        placeholder="Enter phone number"
+                        className="rounded-md border px-3 py-2 w-full"
+                      />
+                    )}
+                  />
+                  {errors.phone && (
+                    <p className="text-sm text-red-500">
+                      {errors.phone.message}
+                    </p>
                   )}
                 </div>
 
@@ -213,13 +290,21 @@ export default function Contact() {
                     {...register("message")}
                     placeholder="Tell us about your project..."
                     className="min-h-[150px]"
+                    disabled={isSubmitting}
                   />
                   {errors.message && (
-                    <p className="text-sm text-red-500">{errors.message.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.message.message}
+                    </p>
                   )}
                 </div>
 
-                <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
@@ -234,15 +319,12 @@ export default function Contact() {
           <div className="rounded-lg overflow-hidden shadow-lg h-[400px]">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.2722907025723!2d-122.08374688447931!3d37.42199997982367!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fba02425dad8f%3A0x6c296c66619367e0!2sGoogleplex!5e0!3m2!1sen!2sus!4v1624308999981!5m2!1sen!2sus"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
+              className="w-full h-full border-0"
+              title="Google Map"
             ></iframe>
           </div>
         </div>
       </section>
     </>
-  )
+  );
 }
