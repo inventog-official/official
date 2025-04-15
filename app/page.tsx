@@ -136,7 +136,7 @@ export default function Home() {
               Empowering businesses through innovative software solutions and
               digital transformation.
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex  flex-col justify-center gap-4">
               <Button size="lg" asChild>
                 <Link href="/contact">
                   Start Your Journey <ArrowRight className="ml-2 h-4 w-4" />
@@ -147,11 +147,9 @@ export default function Home() {
               </Button>
 
               <Button size="lg" variant="outline" asChild>
-                <a
-                  href="tel:+917845931744"
-                >
+                <a href="tel:+917845931744" className="flex items-center gap-2">
                   <Phone className="w-5 h-5" />
-                  call us
+                  Call us for a Free Consultation
                 </a>
               </Button>
             </div>
