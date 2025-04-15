@@ -42,7 +42,7 @@ export default function Contact() {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      phone: "", // initialize phone to empty string
+      phone: "", 
     },
   });
 
