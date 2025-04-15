@@ -11,6 +11,8 @@ const audienceId = process.env.RESEND_AUDIENCE_ID ?? "";
 export async function POST(req: Request) {
   const body = await req.json();
 
+  console.log("Backend response:", body);
+
   const result = contactSchema.safeParse(body);
   if (!result.success) {
     return NextResponse.json({ error: result.error.format() }, { status: 400 });
@@ -26,7 +28,7 @@ export async function POST(req: Request) {
       subject: "Thank You for Contacting InventOG!",
       react: ThankYouEmail({
         firstName,
-        lastName,
+        lastName: lastName ?? "",
         company: company ?? "",
         phone: phone, // Removed as 'phone' is not a known property
         email,
@@ -41,7 +43,7 @@ export async function POST(req: Request) {
       subject: `New Contact Form Submission from ${firstName} ${lastName}`,
       react: AdminNotification({
         firstName,
-        lastName,
+        lastName: lastName ?? "",
         email,
         phone,
         company: company ?? "",
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
     await resend.contacts.create({
       email: email,
       firstName: firstName,
-      lastName: lastName,
+      lastName: lastName ?? "",
       unsubscribed: false,
       audienceId: audienceId,
     });

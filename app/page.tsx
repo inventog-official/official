@@ -11,6 +11,7 @@ import {
   Lock,
   Star,
   CheckCircle2,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

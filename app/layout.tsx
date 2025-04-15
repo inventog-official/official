@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
-import { Toaster } from "@/components/ui/toaster";
 import FloatingButtons from "@/components/floating-buttons";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
