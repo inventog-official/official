@@ -143,6 +143,15 @@ export default function Home() {
               <Button size="lg" variant="outline" asChild>
                 <Link href="/portfolio">View Our Work</Link>
               </Button>
+
+              <Button size="lg" variant="outline" asChild>
+                <a
+                  href="tel:+917845931744"
+                >
+                  <Phone className="w-5 h-5" />
+                  call us
+                </a>
+              </Button>
             </div>
           </div>
         </div>
