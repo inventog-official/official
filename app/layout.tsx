@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { AnimatePresence } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
+import FloatingButtons from "@/components/floating-buttons";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -63,6 +64,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex min-h-screen flex-col">
+            <FloatingButtons />
             <Navbar />
             <AnimatePresence mode="wait">
               <main className="flex-1">{children}</main>

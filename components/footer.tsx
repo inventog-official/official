@@ -123,7 +123,7 @@ const Footer = () => {
             </div>
             <div className="mt-4 text-sm text-muted-foreground">
               <p>Email: contact@inventog.com</p>
-              <p>Phone: +1 (888) 123-4567</p>
+              <p>Phone: +91 7845931744</p>
             </div>
           </div>
         </div>
