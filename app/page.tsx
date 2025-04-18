@@ -113,6 +113,8 @@ export default function Home() {
     "AWS",
   ];
 
+  console.log("first");
+
   return (
     <div>
       {/* Hero Section */}
